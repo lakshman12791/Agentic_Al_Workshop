@@ -1,0 +1,5 @@
+streamlit>=1.32.0
+matplotlib>=3.7.0
+google-generativeai>=0.4.1
+langchain>=0.1.14
+langchain-google-genai>=0.0.6

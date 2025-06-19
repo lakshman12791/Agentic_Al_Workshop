@@ -1,0 +1,5 @@
+streamlit
+matplotlib
+langchain
+google-generativeai
+path

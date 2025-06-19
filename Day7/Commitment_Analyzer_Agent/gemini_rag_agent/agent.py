@@ -1,43 +1,50 @@
 # gemini_rag_agent/agent.py
 
+class SimpleRetriever:
+    def __init__(self, documents):
+        self.documents = documents
+
+    def retrieve(self, query):
+        # Simple keyword-based retrieval (for demo purposes)
+        return [doc for doc in self.documents if any(word in doc.lower() for word in query.lower().split())]
+
+class SimpleGenerator:
+    def generate(self, context):
+        # Dummy generator — in real use, you'd connect this to Gemini API
+        return f"Based on the following context:\n\n{context}\n\n...here's a synthesized answer."
+
 class GeminiRAGAgent:
-    def __init__(self, retriever=None, generator=None):
+    def __init__(self, documents=None, retriever=None, generator=None):
         """
-        Initialize the GeminiRAGAgent with optional retriever and generator.
-        retriever: an object responsible for fetching relevant documents
-        generator: an object responsible for generating responses
+        Initialize the GeminiRAGAgent with optional retriever, generator, or raw documents.
+        If documents are provided, a default retriever is created.
         """
+        if documents and retriever is None:
+            retriever = SimpleRetriever(documents)
+        if generator is None:
+            generator = SimpleGenerator()
+
         self.retriever = retriever
         self.generator = generator
 
     def retrieve(self, query):
-        """
-        Retrieve relevant documents given a query.
-        """
         if not self.retriever:
             raise ValueError("Retriever not set")
         return self.retriever.retrieve(query)
 
     def generate(self, context):
-        """
-        Generate a response given some context.
-        """
         if not self.generator:
             raise ValueError("Generator not set")
         return self.generator.generate(context)
 
     def answer(self, query):
-        """
-        High-level method to answer a query by retrieving and generating.
-        """
         docs = self.retrieve(query)
         context = self._combine_docs(docs)
         response = self.generate(context)
         return response
 
     def _combine_docs(self, docs):
-        """
-        Combine retrieved documents into a single context string.
-        """
         return "\n".join(docs) if docs else ""
 
+    def query(self, query):
+        return self.answer(query)

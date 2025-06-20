@@ -93,13 +93,13 @@ export function DesirabilityTag({ desirability_score }) {
 
     console.log("desirability_score", desirability_score)
 
-    if (desirability_score < 0.4) {
+    if (desirability_score < 4) {
         tagLabel = 'No usage';
         tagStyle = 'bg-red-100 text-red-700 border border-red-300';
-    } else if (desirability_score >= 0.4 && desirability_score <= 0.7) {
+    } else if (desirability_score >= 4 && desirability_score <= 7) {
         tagLabel = 'Moderate usage';
         tagStyle = 'bg-yellow-100 text-yellow-800 border border-yellow-300';
-    } else if (desirability_score > 0.7) {
+    } else if (desirability_score > 7) {
         tagLabel = 'Frequent usage';
         tagStyle = 'bg-green-100 text-green-800 border border-green-300';
     } else {

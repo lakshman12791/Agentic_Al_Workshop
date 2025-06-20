@@ -85,6 +85,10 @@ Hackathon_MVP_Feat_Nego/
 └── README.md
 
 
+Workflow Diagram:
+
+https://drive.google.com/file/d/1Tu3Hz4y2TeqJ-xkCwIwEU95NLWqM1cgY/view?usp=sharing
+
 
 # 🤖 AI Agents Summary – Agentic AI-Based MVP Feature Negotiator
 

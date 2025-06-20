@@ -7,7 +7,7 @@ import FeedbackResults from './components/FeedbackResults';
 function App() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-      <h1 className="text-3xl font-bold mb-6">Feedback Parser</h1>
+      <h1 className="text-3xl font-bold mb-6">Agentic AI-Based MVP Feature Negotiator</h1>
       <FeedbackUploader />
       <FeedbackResults />
     </div>

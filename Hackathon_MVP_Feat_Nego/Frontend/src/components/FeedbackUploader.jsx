@@ -22,7 +22,7 @@ function FeedbackUploader() {
     formData.append('feedback', file);
 
     try {
-      const response = await fetch('http://localhost:3001/api/feedback/upload', {
+      const response = await fetch('http://localhost:3001/api/feedback-parser/upload', {
         method: 'POST',
         body: formData,
       });

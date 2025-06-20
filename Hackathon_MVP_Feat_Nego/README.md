@@ -1,5 +1,94 @@
+#Tree Structure
 
----
+
+Frontend/
+├── eslint.config.js
+├── index.html
+├── node_modules/
+├── package-lock.json
+├── package.json
+├── public/
+├── README.md
+├── src/
+├── tailwind.config.js
+└── vite.config.js
+
+
+##Backend:
+
+Backend/
+├── index.js
+├── middleware/
+├── node_modules/
+├── package-lock.json
+├── package.json
+├── python/
+└── routes/
+
+
+python/
+├── base_agent.py
+├── blueprint_generator.py
+├── feasibility_results.json
+├── feasibility_score.py
+├── feedback_details.txt
+├── feedback_parser.py
+├── feedback_taxonomy.json
+├── input_features.json
+├── main.py
+├── prioritization_agent.py
+├── rag_parser.py
+├── requirements.txt
+├── transition_planner.py
+├── utils/
+├── venv/
+└── viability_agent.py
+
+Hackathon_MVP_Feat_Nego/
+├── Backend/
+│   ├── index.js
+│   ├── middleware/
+│   ├── node_modules/
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── python/
+│   │   ├── base_agent.py
+│   │   ├── blueprint_generator.py
+│   │   ├── feasibility_results.json
+│   │   ├── feasibility_score.py
+│   │   ├── feedback_details.txt
+│   │   ├── feedback_parser.py
+│   │   ├── feedback_taxonomy.json
+│   │   ├── input_features.json
+│   │   ├── main.py
+│   │   ├── prioritization_agent.py
+│   │   ├── rag_parser.py
+│   │   ├── requirements.txt
+│   │   ├── transition_planner.py
+│   │   ├── utils/
+│   │   ├── venv/
+│   │   └── viability_agent.py
+│   └── routes/
+├── Frontend/
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── node_modules/
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public/
+│   ├── README.md
+│   ├── src/
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── feedback.json
+├── README copy.md
+└── README.md
+
+
+
+# 🤖 AI Agents Summary – Agentic AI-Based MVP Feature Negotiator
+
+This document provides a high-level overview of the core LangChain-based AI agents used in the Feedback Intelligence System. Each agent performs a specific function in the feedback-to-feature-to-roadmap pipeline, supporting product teams in making data-driven decisions.
 
 ## 🔌 Key Components
 
@@ -26,9 +115,6 @@ Each agent specializes in a specific task:
 | TransitionPlannerAgent  | Creates phased rollout plans and feedback loops       |
 
 
-# 🤖 AI Agents Summary – Feedback Intelligence System
-
-This document provides a high-level overview of the core LangChain-based AI agents used in the Feedback Intelligence System. Each agent performs a specific function in the feedback-to-feature-to-roadmap pipeline, supporting product teams in making data-driven decisions.
 
 ---
 

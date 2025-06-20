@@ -13,7 +13,11 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === "application/json" || file.originalname.endsWith('feedback_taxonomy.json')) {
+        const isJsonMimeType = file.mimetype === 'application/json';
+        // Ensure case-insensitive check for extension, consistent with frontend
+        const isJsonExtension = file.originalname.toLowerCase().endsWith('.json');
+
+        if (isJsonMimeType || isJsonExtension) {
             cb(null, true);
         } else {
             cb(new Error('Only .json files are allowed!'), false);
@@ -22,7 +26,7 @@ const upload = multer({
 });
 
 // Define a directory for temporary files
-const TEMP_DIR = path.join(__dirname, '../temp_files');
+const TEMP_DIR = path.join(__dirname, '../input_features.json');
 
 // Ensure the temporary directory exists
 fs.mkdir(TEMP_DIR, { recursive: true }).catch(console.error);

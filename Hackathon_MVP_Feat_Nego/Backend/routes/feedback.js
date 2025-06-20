@@ -32,7 +32,7 @@ router.post('/upload', upload.single('feedback'), async (req, res) => {
         return res.status(400).json({ success: false, error: 'No file uploaded or invalid file type.' });
     }
 
-    const pythonScriptPath = path.join(__dirname, '../python/feedback_parser.py');
+    const pythonScriptPath = path.join(__dirname, '../python/main.py');
     const uniqueId = Date.now() + '-' + Math.random().toString(36).substring(2, 9);
     const tempInputFilename = `input_${uniqueId}.json`;
     const tempOutputFilename = `output_${uniqueId}.json`;
@@ -129,13 +129,6 @@ router.post('/upload', upload.single('feedback'), async (req, res) => {
 });
 
 router.get('/results', async (req, res, next) => {
-    // This route currently reads the 'feedback_taxonomy.json' which is the input taxonomy.
-    // If you intend to get results of a *specific* previous processing job,
-    // this route would need to be redesigned, perhaps to take an ID or read from a database
-    // where results are stored.
-    // For now, let's assume it's meant to serve the taxonomy file itself,
-    // or it's a placeholder for a future results endpoint.
-    // The python script's output is now handled per-request in the POST /upload route.
     try {
         const taxonomyFilePath = path.join(__dirname, '../python/feedback_taxonomy.json');
         const taxonomyContent = await fs.readFile(taxonomyFilePath, 'utf8');

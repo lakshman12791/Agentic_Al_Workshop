@@ -1,0 +1,4 @@
+I really like how fast the app loads but the login page feels clunky.
+Wish I could get notifications faster when my driver is nearby.
+The dashboard is visually appealing but hard to navigate.
+We had trouble sharing location in real time.

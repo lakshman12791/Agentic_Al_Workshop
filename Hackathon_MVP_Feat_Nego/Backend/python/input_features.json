@@ -1,0 +1,134 @@
+{
+  "User Interface": [
+    {
+      "feature": "Navigation",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Visual Design",
+      "desirability_score": 7
+    },
+    {
+      "feature": "Accessibility",
+      "desirability_score": 6
+    },
+    {
+      "feature": "Responsiveness",
+      "desirability_score": 9
+    },
+    {
+      "feature": "User Experience",
+      "desirability_score": 9
+    }
+  ],
+  "Performance": [
+    {
+      "feature": "Speed",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Reliability",
+      "desirability_score": 10
+    },
+    {
+      "feature": "Scalability",
+      "desirability_score": 8
+    },
+    {
+      "feature": "Optimization",
+      "desirability_score": 8
+    },
+    {
+      "feature": "Resource Management",
+      "desirability_score": 7
+    }
+  ],
+  "Security": [
+    {
+      "feature": "Authentication",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Authorization",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Data Protection",
+      "desirability_score": 10
+    },
+    {
+      "feature": "Privacy",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Compliance",
+      "desirability_score": 8
+    }
+  ],
+  "Analytics": [
+    {
+      "feature": "Reporting",
+      "desirability_score": 6
+    },
+    {
+      "feature": "Data Visualization",
+      "desirability_score": 5
+    },
+    {
+      "feature": "Insights",
+      "desirability_score": 7
+    },
+    {
+      "feature": "Export",
+      "desirability_score": 4
+    },
+    {
+      "feature": "Real-time",
+      "desirability_score": 8
+    }
+  ],
+  "Integration": [
+    {
+      "feature": "Third-party Services",
+      "desirability_score": 7
+    },
+    {
+      "feature": "APIs",
+      "desirability_score": 9
+    },
+    {
+      "feature": "File Sharing",
+      "desirability_score": 3
+    },
+    {
+      "feature": "Workflow",
+      "desirability_score": 6
+    },
+    {
+      "feature": "Collaboration",
+      "desirability_score": 5
+    }
+  ],
+  "Collaboration": [
+    {
+      "feature": "Multi-user",
+      "desirability_score": 8
+    },
+    {
+      "feature": "Communication",
+      "desirability_score": 9
+    },
+    {
+      "feature": "Sharing",
+      "desirability_score": 6
+    },
+    {
+      "feature": "Team Management",
+      "desirability_score": 7
+    },
+    {
+      "feature": "Notifications",
+      "desirability_score": 10
+    }
+  ]
+}

@@ -1,135 +1,147 @@
 // server/src/routes/feedback.js
 const express = require('express');
-const { exec, spawn } = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const multer = require('multer');
 const router = express.Router();
 
-
-async function processJsonData(jsonData) {
-    try {
-        let summary = {
-            totalRecords: 0,
-            processedAt: new Date().toISOString()
-        };
-
-        if (Array.isArray(jsonData)) {
-            summary.totalRecords = jsonData.length;
-            summary.type = 'array';
-
-            jsonData.forEach((item, index) => {
-                console.log(`Processing record ${index + 1}:`, Object.keys(item));
-            });
-
-        } else if (typeof jsonData === 'object') {
-            summary.totalRecords = 1;
-            summary.type = 'object';
-            summary.fields = Object.keys(jsonData);
-
+// Configure multer for file uploads
+// We'll use memory storage for simplicity, but for larger files, disk storage is better.
+const storage = multer.memoryStorage();
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype === "application/json" || file.originalname.endsWith('feedback_taxonomy.json')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only .json files are allowed!'), false);
         }
-        return {
-            success: true,
-            summary: summary
-        };
-
-    } catch (error) {
-        console.error('Data processing error:', error);
-        throw new Error('Failed to process JSON data');
     }
-}
+});
 
-function callSecondPythonScript(data) {
-    console.log("data", data)
-}
+// Define a directory for temporary files
+const TEMP_DIR = path.join(__dirname, '../temp_files');
 
+// Ensure the temporary directory exists
+fs.mkdir(TEMP_DIR, { recursive: true }).catch(console.error);
 
-router.post('/upload', express.json({ limit: '10mb' }), async (req, res) => {
+router.post('/upload', upload.single('feedback'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded or invalid file type.' });
+    }
+
+    const pythonScriptPath = path.join(__dirname, '../python/feedback_parser.py');
+    const uniqueId = Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+    const tempInputFilename = `input_${uniqueId}.json`;
+    const tempOutputFilename = `output_${uniqueId}.json`;
+    const tempInputPath = path.join(TEMP_DIR, tempInputFilename);
+    const tempOutputPath = path.join(TEMP_DIR, tempOutputFilename);
+
     try {
-
-        const UPLOAD_DIR = path.join(__dirname, '../python');
-
+        // Validate JSON content from buffer before writing
         const fileContent = req.file.buffer.toString('utf8');
-
         let jsonData;
         try {
             jsonData = JSON.parse(fileContent);
         } catch (parseError) {
+            console.error('Invalid JSON format in uploaded file:', parseError);
             return res.status(400).json({
                 success: false,
                 error: 'Invalid JSON format in uploaded file'
             });
         }
 
-        const processedData = await processJsonData(jsonData);
-        const filePath = path.join(UPLOAD_DIR, "feedback_taxonomy.json");
+        // Save uploaded file content to a temporary input file for the Python script
+        await fs.writeFile(tempInputPath, fileContent, 'utf8');
 
-        // Save file to disk
-        await fs.writeFile(filePath, fileContent, 'utf8');
+        const pythonProcess = spawn('python3', [pythonScriptPath, tempInputPath, tempOutputPath]);
 
-        const pythonProcess = await spawn('python3', ['python/feedback_parser.py']);
-        // const python = await spawn('python3', ['/Users/user/Documents/LAKSHMAN/Agentic_Al_Workshop/Hackathon_MVP_Feat_Nego/Backend/python/feedback_parser.py']);
-
-        let jsonResultData = '';
-
-
-        console.log(`python: ${pythonProcess}`);
+        let stdoutData = '';
+        let stderrData = '';
 
         pythonProcess.stdout.on('data', (data) => {
-            jsonResultData += data.toString();
+            stdoutData += data.toString();
+            console.log(`Python stdout: ${data}`);
         });
 
         pythonProcess.stderr.on('data', (data) => {
-            console.error(`Error from Python: ${data}`);
+            stderrData += data.toString();
+            console.error(`Python stderr: ${data}`);
         });
 
-        pythonProcess.on('close', (code) => {
-            if (code !== 0) {
-                console.error(`First Python script exited with code ${code}`);
-                return;
+        pythonProcess.on('close', async (code) => {
+            console.log(`Python script exited with code ${code}`);
+
+            if (code === 0) {
+                try {
+                    // Read the output file created by the Python script
+                    const resultData = await fs.readFile(tempOutputPath, 'utf8');
+                    const resultJson = JSON.parse(resultData);
+
+                    res.json({
+                        success: true,
+                        message: 'File uploaded and processed successfully',
+                        data: {
+                            filename: req.file.originalname,
+                            size: req.file.size,
+                            pythonResult: resultJson
+                        }
+                    });
+                } catch (parseOrReadError) {
+                    console.error("Error reading/parsing Python script output file:", parseOrReadError);
+                    res.status(500).json({ success: false, error: 'Failed to read or parse Python script output', details: parseOrReadError.message, stderr: stderrData });
+                }
+            } else {
+                res.status(500).json({ success: false, error: `Python script execution failed with code ${code}`, stderr: stderrData });
             }
 
+            // Cleanup temporary files
             try {
-                const parsedData = JSON.parse(jsonData);
-                console.log('Received JSON:', parsedData);
-
-                // Call the second Python script with the JSON as input
-                callSecondPythonScript(parsedData);
-            } catch (e) {
-                console.error('Failed to parse JSON:', e);
+                await fs.unlink(tempInputPath);
+                await fs.unlink(tempOutputPath);
+            } catch (cleanupError) {
+                console.error("Error cleaning up temporary files:", cleanupError);
             }
         });
 
-
-
-
-        // res.json({
-        //     success: true,
-        //     message: 'File uploaded and processed successfully',
-        //     data: {
-        //         filename: req.file.originalname,
-        //         size: req.file.size,
-        //         recordsProcessed: Array.isArray(jsonData) ? jsonData.length : 1,
-        //         summary: processedData.summary
-        //     }
-        // });
-
+        pythonProcess.on('error', (err) => {
+            console.error('Failed to start Python subprocess.', err);
+            res.status(500).json({ success: false, error: 'Failed to start Python script process', details: err.message });
+            // No need to cleanup here as files might not have been created or spawn failed.
+        });
     } catch (error) {
-        console.error('Save error:', error);
+        console.error('Error in /upload route:', error);
         res.status(500).json({
-            error: 'Failed to save JSON data',
+            success: false,
+            error: 'An unexpected error occurred during file processing.',
             details: error.message
         });
+        // Attempt to cleanup files even on outer error
+        try {
+            if (await fs.stat(tempInputPath).catch(() => false)) await fs.unlink(tempInputPath);
+            if (await fs.stat(tempOutputPath).catch(() => false)) await fs.unlink(tempOutputPath);
+        } catch (cleanupError) {
+            console.error("Error cleaning up temporary files on failure:", cleanupError);
+        }
     }
 });
 
 router.get('/results', async (req, res, next) => {
+    // This route currently reads the 'feedback_taxonomy.json' which is the input taxonomy.
+    // If you intend to get results of a *specific* previous processing job,
+    // this route would need to be redesigned, perhaps to take an ID or read from a database
+    // where results are stored.
+    // For now, let's assume it's meant to serve the taxonomy file itself,
+    // or it's a placeholder for a future results endpoint.
+    // The python script's output is now handled per-request in the POST /upload route.
     try {
-        const outputPath = path.join(__dirname, '../../Backend/python/feedback_taxonomy.json');
-        const results = await fs.readFile(outputPath, 'utf8');
-        res.json(JSON.parse(results));
+        const taxonomyFilePath = path.join(__dirname, '../python/feedback_taxonomy.json');
+        const taxonomyContent = await fs.readFile(taxonomyFilePath, 'utf8');
+        res.json(JSON.parse(taxonomyContent));
     } catch (err) {
-        console.log("err", err)
+        console.error("Error reading taxonomy file in /results:", err);
         next(err);
     }
 });

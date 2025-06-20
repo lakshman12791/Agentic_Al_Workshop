@@ -39,6 +39,10 @@ async function processJsonData(jsonData) {
     }
 }
 
+function callSecondPythonScript(data) {
+    console.log("data", data)
+}
+
 
 router.post('/upload', express.json({ limit: '10mb' }), async (req, res) => {
     try {
@@ -63,18 +67,37 @@ router.post('/upload', express.json({ limit: '10mb' }), async (req, res) => {
         // Save file to disk
         await fs.writeFile(filePath, fileContent, 'utf8');
 
-        const python = spawn('python', ['python/feedback_analyzer.py']);
+        const pythonProcess = await spawn('python3', ['python/feedback_parser.py']);
+        // const python = await spawn('python3', ['/Users/user/Documents/LAKSHMAN/Agentic_Al_Workshop/Hackathon_MVP_Feat_Nego/Backend/python/feedback_parser.py']);
 
-        python.stdout.on('data', (data) => {
-            console.log(`Output: ${data}`);
+        let jsonResultData = '';
+
+
+        console.log(`python: ${pythonProcess}`);
+
+        pythonProcess.stdout.on('data', (data) => {
+            jsonResultData += data.toString();
         });
 
-        python.stderr.on('data', (data) => {
-            console.error(`Error: ${data}`);
+        pythonProcess.stderr.on('data', (data) => {
+            console.error(`Error from Python: ${data}`);
         });
 
-        python.on('close', (code) => {
-            console.log(`Process exited with code ${code}`);
+        pythonProcess.on('close', (code) => {
+            if (code !== 0) {
+                console.error(`First Python script exited with code ${code}`);
+                return;
+            }
+
+            try {
+                const parsedData = JSON.parse(jsonData);
+                console.log('Received JSON:', parsedData);
+
+                // Call the second Python script with the JSON as input
+                callSecondPythonScript(parsedData);
+            } catch (e) {
+                console.error('Failed to parse JSON:', e);
+            }
         });
 
 

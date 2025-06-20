@@ -1,18 +1,22 @@
 import json
 import os
+import re
 from tqdm import tqdm
 from dotenv import load_dotenv
-
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 
+# Load environment variables
 load_dotenv()
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_API_KEY = "AIzaSyCp8H9Ihvgujw76b56eIVQOAK8Jr92YBpo"
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY not found in environment variables.")
 
-# Load and prepare industry taxonomy
+# Load taxonomy
 with open("feedback_taxonomy.json") as f:
     taxonomy = json.load(f)
 
@@ -20,13 +24,12 @@ with open("feedback_taxonomy.json") as f:
 with open("feedback_details.txt") as f:
     feedback_entries = [line.strip() for line in f if line.strip()]
 
-# Prepare feature reference text
+# Prepare taxonomy text
 taxonomy_text = ""
-for category, data in taxonomy.items():
-    for feature in data["subcategories"]:
-        taxonomy_text += f"{feature} ({category})\n"
+for item in taxonomy:
+    taxonomy_text += f"{item['feature']} ({item['need']})\n"
 
-# Create embeddings from taxonomy for reference
+# Split and embed
 text_splitter = CharacterTextSplitter(chunk_size=512, chunk_overlap=0)
 docs = text_splitter.create_documents([taxonomy_text])
 
@@ -34,8 +37,8 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_a
 db = FAISS.from_documents(docs, embeddings)
 retriever = db.as_retriever()
 
-# Gemini for RAG
-llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3, google_api_key=GOOGLE_API_KEY)
+# Setup RAG chain
+llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3, google_api_key=GOOGLE_API_KEY)
 rag_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, return_source_documents=False)
 
 structured_outputs = []
@@ -57,11 +60,19 @@ If no relevant match, return an empty list.
 """
     try:
         response = rag_chain.run(prompt)
-        json_output = json.loads(response)
-        if isinstance(json_output, list):
-            structured_outputs.extend(json_output)
+
+        # Try extracting JSON from the response
+        match = re.search(r"\[.*?\]", response, re.DOTALL)
+        if match:
+            json_output = json.loads(match.group(0))
+            if isinstance(json_output, list):
+                structured_outputs.extend(json_output)
+        else:
+            print("⚠️ No JSON found in response:", response)
+
     except Exception as e:
-        print("Error parsing:", feedback, e)
+        print("❌ Error parsing:", feedback)
+        print("   ➤", str(e))
 
 # Save results
 with open("structured_results.json", "w") as f:

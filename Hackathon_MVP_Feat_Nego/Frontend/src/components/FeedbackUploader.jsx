@@ -98,25 +98,91 @@ function FeedbackUploader() {
 
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-      <h2 className="text-xl font-semibold mb-4">Upload Feedback</h2>
-      <input
-        type="file"
-        // accept=".txt,.csv,.json"
-        accept=".json"
+    <div
+      style={{
+        background: 'linear-gradient(to bottom right, #ffffff, #f9fafb)',
+        padding: '2rem',
+        borderRadius: '1rem',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+        width: '100%',
+        maxWidth: '32rem',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <h2
+        style={{
+          fontSize: '1.5rem',
+          fontWeight: '700',
+          color: '#1f2937',
+          marginBottom: '1.5rem',
+          textAlign: 'center',
+        }}
+      >
+        📤 Upload Feedback
+      </h2>
 
-        onChange={handleFileChange}
-        className="mb-4"
-      />
+      <label style={{ display: 'block', marginBottom: '1rem' }}>
+        <span
+          style={{
+            display: 'block',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            color: '#4b5563',
+            marginBottom: '0.5rem',
+          }}
+        >
+          Select a JSON file
+        </span>
+        <input
+          type="file"
+          accept=".json"
+          onChange={handleFileChange}
+          style={{
+            display: 'block',
+            width: '100%',
+            fontSize: '0.875rem',
+            color: '#374151',
+            padding: '0.5rem',
+            borderRadius: '0.5rem',
+            border: '1px solid #d1d5db',
+            cursor: 'pointer',
+          }}
+        />
+      </label>
+
       <button
         onClick={handleUpload}
         disabled={uploading}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+        style={{
+          width: '100%',
+          padding: '0.75rem',
+          borderRadius: '0.5rem',
+          fontWeight: '600',
+          fontSize: '1rem',
+          backgroundColor: uploading ? '#d1d5db' : '#2563eb',
+          color: uploading ? '#6b7280' : '#ffffff',
+          cursor: uploading ? 'not-allowed' : 'pointer',
+          transition: 'background-color 0.2s ease',
+        }}
       >
         {uploading ? 'Uploading...' : 'Upload'}
       </button>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+
+      {error && (
+        <p
+          style={{
+            color: '#dc2626',
+            marginTop: '1rem',
+            textAlign: 'center',
+            fontWeight: '500',
+          }}
+        >
+          {error}
+        </p>
+      )}
     </div>
+
   );
 }
 

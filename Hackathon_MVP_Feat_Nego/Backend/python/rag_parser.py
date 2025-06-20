@@ -14,8 +14,12 @@ load_dotenv()
 # llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GOOGLE_API_KEY"))
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key="AIzaSyCp8H9Ihvgujw76b56eIVQOAK8Jr92YBpo")
 
+# Construct the absolute path to the taxonomy file
+script_dir = os.path.dirname(os.path.abspath(__file__))
+taxonomy_file_path = os.path.join(script_dir, 'feedback_taxonomy.json')
+
 # Load industry-standard feature taxonomy
-with open('feedback_taxonomy.json', 'r') as f:
+with open(taxonomy_file_path, 'r') as f:
     taxonomy = json.load(f)
 
 # Define prompt template

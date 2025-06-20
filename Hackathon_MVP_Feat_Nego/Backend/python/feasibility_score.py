@@ -3,13 +3,6 @@ from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
 
-# 1. Load input JSON
-with open("input_features.json", "r") as f:
-    input_data = json.load(f)
-
-features = input_data.get("features", [])
-
-# 2. Define prompt template
 prompt_template = PromptTemplate.from_template("""
 You are a Feasibility Assessment Agent.
 Evaluate the following feature for feasibility based on:
@@ -32,26 +25,34 @@ Output JSON Format:
 Assess at least 70% of relevant constraints and flag high-risk features.
 """)
 
-# 3. Output parser
+# Initialize LLM and Parser (can be done globally if they are stateless)
 parser = JsonOutputParser()
-
-# 4. Load LLM (Google Gemini, replace with OpenAI if needed)
 llm = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash",
     google_api_key="AIzaSyCp8H9Ihvgujw76b56eIVQOAK8Jr92YBpo",
     temperature=0.3,
 )
 
-# 5. Run for each feature
-results = []
-for feature in features:
-    prompt = prompt_template.format(feature=json.dumps(feature))
-    output = llm.invoke(prompt)
-    parsed = parser.invoke(output)
-    results.append(parsed)
+def assess_feasibility(input_features_list: list) -> list:
+   
+    results = []
+    for feature_data in input_features_list:
+        try:
+            prompt_filled = prompt_template.format(feature=json.dumps(feature_data))
+            output = llm.invoke(prompt_filled)
+            parsed = parser.invoke(output)
+            results.append(parsed)
+        except Exception as e:
+            print(f"Error assessing feasibility for feature {feature_data.get('feature', 'Unknown')}: {e}")
+            # Optionally, append an error object or skip
+            results.append({"feature_name": feature_data.get('feature', 'Unknown'), "error": str(e), "feasibility_score": 0, "high_risk": True, "risk_flags": ["Processing Error"]})
+    return results
 
-# 6. Output result
-with open("feasibility_results.json", "w") as f:
-    json.dump(results, f, indent=2)
-
-print(json.dumps(results, indent=2))
+if __name__ == "__main__":
+    # Example usage for standalone testing
+    sample_features = [
+        {"feature": "User Authentication", "description": "Implement OAuth 2.0 for user login.", "user_stories": ["As a user, I want to log in securely."]},
+        {"feature": "Dashboard Display", "description": "Show key metrics on the main dashboard.", "complexity": "medium"}
+    ]
+    feasibility_results = assess_feasibility(sample_features)
+    print(json.dumps(feasibility_results, indent=2))

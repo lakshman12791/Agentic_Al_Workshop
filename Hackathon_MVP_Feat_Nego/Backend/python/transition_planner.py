@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-from .base_agent import BaseAgent
+from base_agent import BaseAgent
 
 class TransitionOutput(BaseModel):
     roadmap: list = Field(description="Phased rollout plan")

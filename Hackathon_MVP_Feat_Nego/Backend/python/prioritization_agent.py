@@ -1,7 +1,7 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from typing import List
-from .base_agent import BaseAgent
+from base_agent import BaseAgent
 
 class FeatureScore(BaseModel):
     feature: str = Field(description="Feature name")

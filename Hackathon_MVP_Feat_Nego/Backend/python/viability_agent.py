@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-from .base_agent import BaseAgent
+from base_agent import BaseAgent
 
 class ViabilityInput(BaseModel):
     feature: str = Field(description="Feature name to evaluate")
@@ -57,3 +57,6 @@ class ViabilityAgent(BaseAgent):
         )
         
         return super().run(input_str, system_prompt=system_prompt)
+    
+
+    

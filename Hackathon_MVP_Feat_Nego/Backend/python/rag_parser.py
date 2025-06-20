@@ -80,7 +80,7 @@ def parse_file(input_path):
                 parsed = json.loads(output)
                 results.extend(parsed)
             except Exception as e:
-                print(f"Error processing feedback: {e}")
+                print(f"Error processing feedback Error: {e}")
 
     return results
 

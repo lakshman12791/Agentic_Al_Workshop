@@ -7,3 +7,6 @@ python-dotenv
 tqdm
 fastapi
 python-multipart
+streamlit
+uvicorn
+google-generativeai
